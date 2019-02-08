@@ -1,31 +1,39 @@
 import PropTypes from 'prop-types';
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Layer as KonvaLayer, Text as KonvaText } from 'react-konva';
 import { WhiteboardContext } from '../../index';
 
-const TextLayer = ({ id }) => {
-  // const { currentLayerId, stageMouseEvent } = useContext(WhiteboardContext);
+const usePosition = (layerId) => {
+  const { currentLayerId, stageMouseEvent } = useContext(WhiteboardContext);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
 
-  const textProps = {
-    text: id,
-  };
+  useEffect(() => {
+    if (layerId === currentLayerId) {
+      const { offsetX: nextOffsetX, offsetY: nextOffsetY } = stageMouseEvent || { offsetX: 0, offsetY: 0 };
 
-  // if (id === currentLayerId) {
-  //   const { offsetX, offsetY } = stageMouseEvent;
-  //
-  //   textProps.x = offsetX;
-  //   textProps.y = offsetY;
-  // }
+      setPosition({ x: nextOffsetX, y: nextOffsetY });
+    }
+  }, [stageMouseEvent]);
+
+  return position;
+};
+
+const TextLayer = ({ layerId }) => {
+  const { x, y } = usePosition(layerId);
 
   return (
     <KonvaLayer>
-      <KonvaText {...textProps} />
+      <KonvaText
+        text={layerId}
+        x={x}
+        y={y}
+      />
     </KonvaLayer>
   );
 };
 
 TextLayer.propTypes = {
-  id: PropTypes.string.isRequired,
+  layerId: PropTypes.string.isRequired,
 };
 
 export default TextLayer;

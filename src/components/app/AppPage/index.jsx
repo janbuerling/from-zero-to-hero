@@ -2,7 +2,9 @@ import React from 'react';
 import Whiteboard from '../Whiteboard';
 
 const AppPage = () => (
-  <Whiteboard />
+  <div>
+    <Whiteboard />
+  </div>
 );
 
 export default AppPage;

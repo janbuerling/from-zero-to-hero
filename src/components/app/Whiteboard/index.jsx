@@ -1,7 +1,8 @@
 import React, { useRef, useState } from 'react';
 import { Stage as KonvaStage } from 'react-konva';
+import { ThemeProvider } from 'styled-components';
 import uuidv4 from 'uuid/v4';
-import TextLayer from './components/TextLayer';
+import theme from './styles';
 import ToolsMenu from './components/ToolsMenu';
 import { getNodeByTool } from './helper';
 
@@ -11,7 +12,7 @@ const Whiteboard = () => {
   const [currentLayerId, setCurrentLayerId] = useState(null);
   const [currentTool, setCurrentTool] = useState(null);
   const [stageLayers, setStageLayers] = useState([]);
-  const [stageMouseEvent, setStageMouseEvent] = useState(null);
+  const [stageMouseEvent, setStageMouseEvent] = useState(undefined);
   const stageRef = useRef(null);
 
   /**
@@ -32,25 +33,32 @@ const Whiteboard = () => {
    * @description onMouseMove event from KonvaStage if mouse moved.
    * @param evt
    */
-  const onMouseMove = ({ evt }) => {};
+  const onMouseMove = ({ evt }) => setStageMouseEvent(evt);
 
   /**
    * @description onMouseUp event from KonvaStage if mouse went up.
    * @param evt
    */
-  const onMouseUp = ({ evt }) => {};
+  const onMouseUp = ({ evt }) => {
+    setCurrentLayerId(null);
+    setStageMouseEvent(evt);
+  };
 
   return (
-    <WhiteboardContext.Provider
-      value={{
-        currentLayerId,
-        currentTool,
-        setCurrentTool,
-        stageMouseEvent,
-        stageRef,
-      }}
-    >
-      <ToolsMenu onToolChange={setCurrentTool} />
+    <div>
+      <ThemeProvider theme={theme}>
+        <WhiteboardContext.Provider
+          value={{
+            currentLayerId,
+            currentTool,
+            setCurrentTool,
+            stageMouseEvent,
+            stageRef,
+          }}
+        >
+          <ToolsMenu onToolChange={setCurrentTool} />
+        </WhiteboardContext.Provider>
+      </ThemeProvider>
 
       <KonvaStage
         height={window.innerHeight}
@@ -60,9 +68,21 @@ const Whiteboard = () => {
         ref={stageRef}
         width={window.innerWidth}
       >
-        <TextLayer id={currentLayerId} />
+        <ThemeProvider theme={theme}>
+          <WhiteboardContext.Provider
+            value={{
+              currentLayerId,
+              currentTool,
+              setCurrentTool,
+              stageMouseEvent,
+              stageRef,
+            }}
+          >
+            {stageLayers.map(layer => (<layer.Component key={layer.id} layerId={layer.id} />))}
+          </WhiteboardContext.Provider>
+        </ThemeProvider>
       </KonvaStage>
-    </WhiteboardContext.Provider>
+    </div>
   );
 };
 
