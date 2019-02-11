@@ -1,13 +1,13 @@
 import PropTypes from 'prop-types';
-import React, { useLayoutEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 
 const PortalLayer = ({ children }) => {
   const [node] = useState(document.createElement('div'));
 
-  useLayoutEffect(
+  useEffect(
     () => {
-      const parentNode = document.getElementById('root');
+      const parentNode = document.getElementById('whiteboard');
       parentNode.appendChild(node);
 
       return () => {
@@ -16,8 +16,6 @@ const PortalLayer = ({ children }) => {
     },
     [node],
   );
-
-  React.Children.only(children);
 
   ReactDOM.render(children, node);
 

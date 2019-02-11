@@ -1,61 +1,74 @@
 import React, { useRef, useState } from 'react';
-import { Stage as KonvaStage } from 'react-konva';
+import { Layer as KonvaLayer, Stage as KonvaStage } from 'react-konva';
 import { ThemeProvider } from 'styled-components';
-import uuidv4 from 'uuid/v4';
 import theme from './styles';
-import ToolsMenu from './components/ToolsMenu';
-import { getNodeByTool } from './helper';
+import ToolsMenu, { TOOLS } from './components/ToolsMenu';
+import { getShapeByTool } from './helper';
 
 export const WhiteboardContext = React.createContext({ test: 123 });
 
 const Whiteboard = () => {
-  const [currentLayerId, setCurrentLayerId] = useState(null);
+  const [currentShapeId, setCurrentShapeId] = useState(null);
   const [currentTool, setCurrentTool] = useState(null);
-  const [stageLayers, setStageLayers] = useState([]);
+  const [editMode, setEditMode] = useState(false);
+  const [shapes, setShapes] = useState([]);
   const [stageMouseEvent, setStageMouseEvent] = useState(undefined);
   const stageRef = useRef(null);
 
   /**
+   * @description add a new shape to the stage
+   */
+  const addShape = () => {
+    const newShape = getShapeByTool(currentTool);
+
+    setCurrentShapeId(newShape.id);
+    setEditMode(true);
+    setShapes([...shapes, newShape]);
+  };
+
+  /**
    * @description onMouseDown event from KonvaStage if mouse went down.
-   * @param evt
+   * @param event
    */
   const onMouseDown = ({ evt }) => {
     if (!currentTool) return;
 
-    const layer = { id: uuidv4(), Component: getNodeByTool(currentTool) };
+    if (currentTool !== TOOLS.POINTER) {
+      addShape();
+    }
 
-    setCurrentLayerId(layer.id);
-    setStageLayers([...stageLayers, layer]);
     setStageMouseEvent(evt);
   };
 
   /**
    * @description onMouseMove event from KonvaStage if mouse moved.
-   * @param evt
+   * @param event
    */
   const onMouseMove = ({ evt }) => setStageMouseEvent(evt);
 
   /**
    * @description onMouseUp event from KonvaStage if mouse went up.
-   * @param evt
+   * @param event
    */
   const onMouseUp = ({ evt }) => {
-    setCurrentLayerId(null);
+    setCurrentShapeId(null);
     setStageMouseEvent(evt);
   };
 
+  const providerValue = {
+    currentShapeId,
+    currentTool,
+    editMode,
+    setCurrentTool,
+    setEditMode,
+    stageMouseEvent,
+    stageRef,
+  };
+
   return (
-    <div>
+    <div id='whiteboard'>
       <ThemeProvider theme={theme}>
-        <WhiteboardContext.Provider
-          value={{
-            currentLayerId,
-            currentTool,
-            setCurrentTool,
-            stageMouseEvent,
-            stageRef,
-          }}
-        >
+        <WhiteboardContext.Provider value={providerValue}>
           <ToolsMenu onToolChange={setCurrentTool} />
         </WhiteboardContext.Provider>
       </ThemeProvider>
@@ -69,16 +82,10 @@ const Whiteboard = () => {
         width={window.innerWidth}
       >
         <ThemeProvider theme={theme}>
-          <WhiteboardContext.Provider
-            value={{
-              currentLayerId,
-              currentTool,
-              setCurrentTool,
-              stageMouseEvent,
-              stageRef,
-            }}
-          >
-            {stageLayers.map(layer => (<layer.Component key={layer.id} layerId={layer.id} />))}
+          <WhiteboardContext.Provider value={providerValue}>
+            <KonvaLayer>
+              {shapes.map(shape => (<shape.Component key={shape.id} shapeId={shape.id} />))}
+            </KonvaLayer>
           </WhiteboardContext.Provider>
         </ThemeProvider>
       </KonvaStage>
