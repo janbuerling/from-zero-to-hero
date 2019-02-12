@@ -14,7 +14,7 @@ const PortalLayer = ({ children }) => {
         parentNode.removeChild(node);
       };
     },
-    [node],
+    [],
   );
 
   ReactDOM.render(children, node);

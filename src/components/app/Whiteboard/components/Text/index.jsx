@@ -1,6 +1,12 @@
 import PropTypes from 'prop-types';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, {
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { Text as KonvaText } from 'react-konva';
+import styled from 'styled-components';
 import useMousePosition from '../../hooks/useMousePosition';
 import { WhiteboardContext } from '../../index';
 import PortalLayer from '../PortalLayer';
@@ -8,8 +14,9 @@ import PortalLayer from '../PortalLayer';
 const Text = ({ shapeId }) => {
   const { currentShapeId, editMode, setEditMode } = useContext(WhiteboardContext);
   const [textValue, setTextValue] = useState('');
-  const [textWidth, setTextWidth] = useState(0);
+  const [textWidth, setTextWidth] = useState(200);
   const textRef = useRef(null);
+  const textareaRef = useRef(null);
   const position = useMousePosition();
 
   useEffect(() => {
@@ -18,19 +25,24 @@ const Text = ({ shapeId }) => {
   }, [textRef]);
 
   if (editMode) {
+    const EditContainer = styled.div`
+      position: absolute;
+      top: ${position.y}px;
+      left: ${position.x}px;
+    `;
+
+    const Textarea = styled.textarea`
+      width: ${textWidth}px;
+   `;
+
     return (
       <PortalLayer>
-        <textarea
-          defaultValue={textValue}
-          style={{
-            position: 'absolute',
-            top: `${position.y - 4}px`,
-            left: `${position.x - 4}px`,
-            width: `${textWidth + 8}px`,
-            minWidth: '100px',
-          }}
-          onChange={({ target }) => setTextValue(target.value)}
-        />
+        <EditContainer>
+          <Textarea
+            defaultValue={shapeId}
+            ref={textareaRef}
+          />
+        </EditContainer>
       </PortalLayer>
     );
   }
