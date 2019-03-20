@@ -2,7 +2,7 @@ import React from 'react';
 
 const AppPage = () => (
   <div>
-    My App
+    Herzlich Willkommen
   </div>
 );
 
