@@ -1,9 +1,8 @@
 import React from 'react';
-import Whiteboard from '../Whiteboard';
 
 const AppPage = () => (
   <div>
-    <Whiteboard />
+    My App
   </div>
 );
 
